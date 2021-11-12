@@ -38,7 +38,7 @@ void GameState::Debug()
 	std::cout << "[Can Pop?] : " << CanPopBoard() << '\n';
 }
 
-///
+/// 
 /// @fn		void GameState::InitBoard()
 ///	@brief	난수값으로 보드를 초기화.
 ///
