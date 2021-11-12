@@ -14,9 +14,10 @@ private:
 	bool is_playing; ///< 게임 진행 여부
 	bool is_main_user; ///< 플레이어 타입 지정, 상대 플레이어 : false
 	int score = 0;
-	UserUIState ui_val;
+	
 
 public:
+	UserUIState ui_val;
 	GameState() : is_main_user(false), is_playing(true)
 	{
 		ui_val.ui_ypos = 2;
