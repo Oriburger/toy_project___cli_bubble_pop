@@ -15,11 +15,11 @@
 /// @brief	소켓을 통해 서버로 현재 플레이어의 board 정보를 전송한다.
 /// @return	true를 반환
 /// 
-bool SendData(SOCKET_COMPONENT& sc, GameState* user)
+bool SendData(SOCKET_COMPONENT& sc, GameState &user)
 {
-	const UserUIState& ui_state_ref = user->GetUIStateRef();
+	const UserUIState& ui_state_ref = user.GetUIStateRef();
 
-	while (user->IsPlaying())
+	while (user.IsPlaying())
 	{
 		char str[128] = "";
 
@@ -40,11 +40,11 @@ bool SendData(SOCKET_COMPONENT& sc, GameState* user)
 /// @brief	소켓을 통해 서버로 상태 플레이어의 board 정보를 수신한다.
 /// @return	true를 반환
 /// 
-bool RecvData(SOCKET_COMPONENT& sc, GameState* user)
+bool RecvData(SOCKET_COMPONENT& sc, GameState &user)
 {
-	UserUIState& ui_state_ref = user->GetUIStateRef();
+	UserUIState& ui_state_ref = user.GetUIStateRef();
 
-	while (user->IsPlaying())
+	while (user.IsPlaying())
 	{
 		char str[128] = "";
 
@@ -73,8 +73,8 @@ bool RecvData(SOCKET_COMPONENT& sc, GameState* user)
 /// 
 void SyncData(SOCKET_COMPONENT& sc, GameState user[2])
 {
-	std::thread t_send(SendData, std::ref(sc), &user[0]);
-	std::thread t_recv(RecvData, std::ref(sc), &user[1]);
+	std::thread t_send(SendData, std::ref(sc), std::ref(user[0]));
+	std::thread t_recv(RecvData, std::ref(sc), std::ref(user[1]));
 
 	t_send.join();
 	t_recv.join();
