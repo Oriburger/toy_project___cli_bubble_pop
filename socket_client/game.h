@@ -14,10 +14,9 @@ private:
 	bool is_playing; ///< 게임 진행 여부
 	bool is_main_user; ///< 플레이어 타입 지정, 상대 플레이어 : false
 	int score = 0;
-	
+	UserUIState ui_val;
 
 public:
-	UserUIState ui_val;
 	GameState() : is_main_user(false), is_playing(true)
 	{
 		ui_val.ui_ypos = 2;
@@ -50,7 +49,8 @@ public:
 	void SetScore(int val) { score = val; }
 
 	//---UI---
-	UserUIState& GetUIState() { return ui_val; }
+	UserUIState& GetUIStateRef() { return ui_val; }
+	UserUIState GetUIState() { return ui_val; }
 
 	//---Game Function---
 	void InitBoard(void); ///< 게임 진행을 위해 Board를 초기화
@@ -61,6 +61,6 @@ public:
 ///게임을 시작하고, 진행
 void InGame(GameState user[2]);
 ///BFS 기반으로 보드를 탐색하여 해당 좌표에서 pop 되는 좌표 집합을 반환
-std::vector<std::pair<int, int> > BoardBFS(const GameState& g1, const int y, const int x);
+std::vector<std::pair<int, int> > BoardBFS(GameState& g1, const int y, const int x);
 ///해당 좌표를 pop하고, pop한 bubble의 개수를 반환
-int PopBoard(GameState * g1, const int y, const int x);
+int PopBoard(GameState &g1, const int y, const int x);

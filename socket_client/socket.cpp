@@ -15,17 +15,19 @@
 /// @brief	소켓을 통해 서버로 현재 플레이어의 board 정보를 전송한다.
 /// @return	true를 반환
 /// 
-bool SendData(SOCKET_COMPONENT& sc, const GameState* user)
+bool SendData(SOCKET_COMPONENT& sc, GameState &user)
 {
-	while (user->IsPlaying())
+	const UserUIState& ui_state_ref = user.GetUIStateRef();
+
+	while (user.IsPlaying())
 	{
 		char str[128] = "";
 
-		for (int i = 0; i < user->ui_val.board_len; i++)
+		for (int i = 0; i < ui_state_ref.board_len; i++)
 		{
-			for (int j = 0; j < user->ui_val.board_len; j++)
-				str[j] = user->ui_val.board[i][j] + '0';
-			str[user->ui_val.board_len] = i + '0'; //해당 board의 열idx
+			for (int j = 0; j < ui_state_ref.board_len; j++)
+				str[j] = ui_state_ref.board[i][j] + '0';
+			str[ui_state_ref.board_len] = i + '0'; //해당 board의 열idx
 			send(sc.client_socket, str, sizeof(str), 0);
 			Sleep(200);
 		}
@@ -38,9 +40,11 @@ bool SendData(SOCKET_COMPONENT& sc, const GameState* user)
 /// @brief	소켓을 통해 서버로 상태 플레이어의 board 정보를 수신한다.
 /// @return	true를 반환
 /// 
-bool RecvData(SOCKET_COMPONENT& sc, GameState* user)
+bool RecvData(SOCKET_COMPONENT& sc, GameState &user)
 {
-	while (user->IsPlaying())
+	const UserUIState& ui_state_ref = user.GetUIStateRef();
+
+	while (user.IsPlaying())
 	{
 		char str[128] = "";
 
@@ -69,8 +73,8 @@ bool RecvData(SOCKET_COMPONENT& sc, GameState* user)
 /// 
 void SyncData(SOCKET_COMPONENT& sc, GameState user[2])
 {
-	std::thread t_send(SendData, std::ref(sc), &user[0]);
-	std::thread t_recv(RecvData, std::ref(sc), &user[1]);
+	std::thread t_send(SendData, std::ref(sc), user[0]);
+	std::thread t_recv(RecvData, std::ref(sc), user[1]);
 
 	t_send.join();
 	t_recv.join();

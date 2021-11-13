@@ -83,7 +83,7 @@ void InGame(GameState user[2])
 
 	while (user[0].IsPlaying())
 	{
-		const std::vector<UserUIState> temp = { user[0].ui_val, user[1].ui_val };
+		const std::vector<UserUIState> temp = { user[0].GetUIState(), user[1].GetUIState() };
 		std::thread uiThread(PrintUI, temp); //I/O 분리
 		uiThread.join();
 
@@ -107,11 +107,11 @@ void InGame(GameState user[2])
 			int y = cmd[0] - '0' - 1;
 			int x = cmd[1] - '0' - 1;
 
-			if (y < 0 || y >= user[0].ui_val.board_len
-				|| x < 0 || x >= user[0].ui_val.board_len) continue;
+			if (y < 0 || y >= user[0].GetUIStateRef().board_len
+				|| x < 0 || x >= user[0].GetUIStateRef().board_len) continue;
 			else
 			{
-				int pop_count = PopBoard(&user[0], y, x);
+				int pop_count = PopBoard(user[0], y, x); 
 				user[0].SetScore(user[0].GetScore() + pop_count);
 			}
 		}
@@ -123,10 +123,13 @@ void InGame(GameState user[2])
 ///	@brief	Breath-First-Search 알고리즘 기반으로 보드를 탐색.
 ///	@return	(y, x)에서 pop이 가능하다면, pop되는 bubble들의 좌표 배열을 반환.
 ///
-std::vector<std::pair<int, int> > BoardBFS(const GameState& g1, const int y, const int x)
+std::vector<std::pair<int, int> > BoardBFS(GameState& g1, const int y, const int x)
 {
 	const int dy[4] = { 1, -1, 0, 0 };
 	const int dx[4] = { 0, 0, 1, -1 };
+
+	const UserUIState& ui_state_ref = g1.GetUIStateRef();
+	const int board_len = ui_state_ref.board_len;
 
 	int count = 1;
 	std::pair<int, int> start_pos;
@@ -134,26 +137,26 @@ std::vector<std::pair<int, int> > BoardBFS(const GameState& g1, const int y, con
 	
 	start_pos = { y, x };
 	std::queue<std::pair<int, int> > pos_queue;
-	visited = std::vector<std::vector<bool> >
-		(g1.ui_val.board_len, std::vector<bool>(g1.ui_val.board_len, false));
 
+	visited = std::vector<std::vector<bool> >(board_len, std::vector<bool>(board_len, false));
 	visited[y][x] = true;
+
 	pos_queue.push(start_pos);
 	while (!pos_queue.empty())
 	{
 		std::pair<int, int> curr_pos = pos_queue.front();
-		int curr_bubble_type = g1.ui_val.board[curr_pos.first][curr_pos.second];
+		int curr_bubble_type = ui_state_ref.board[curr_pos.first][curr_pos.second];
 		pos_queue.pop();
 
 		for (int dir_idx = 0; dir_idx < 4; dir_idx++)
 		{
 			const int next_ypos = curr_pos.first + dy[dir_idx];
 			const int next_xpos = curr_pos.second + dx[dir_idx];
-			const int next_bubble_type = g1.ui_val.board[next_ypos][next_xpos];
+			const int next_bubble_type = ui_state_ref.board[next_ypos][next_xpos];
 
 			//board의 범위를 벗어난다면
 			if (next_ypos < 0 || next_xpos < 0
-				|| next_ypos >= g1.ui_val.board_len || next_xpos >= g1.ui_val.board_len) continue;
+				|| next_ypos >= board_len || next_xpos >= board_len) continue;
 			//next 칸의 bubble 색깔이 다르다면
 			if (curr_bubble_type != next_bubble_type)	continue;
 			//이미 방문을 헀다면
@@ -169,8 +172,8 @@ std::vector<std::pair<int, int> > BoardBFS(const GameState& g1, const int y, con
 	if (count < MIN_POP_COUNT) return {};
 
 	std::vector < std::pair<int, int> > ret;
-	for (int i = 0; i < g1.ui_val.board_len; i++)
-		for (int j = 0; j < g1.ui_val.board_len; j++)
+	for (int i = 0; i < board_len; i++)
+		for (int j = 0; j < board_len; j++)
 			if (visited[i][j]) ret.push_back({ i, j });
 
 	return ret;
@@ -182,39 +185,41 @@ std::vector<std::pair<int, int> > BoardBFS(const GameState& g1, const int y, con
 ///	@brief	y, x 좌표를 pop 한다.
 ///	@return	pop한 bubble의 개수를 반환.
 ///
-int PopBoard(GameState* g1, const int y, const int x)
+int PopBoard(GameState &g1, const int y, const int x)
 {
 	std::vector<std::pair<int, int> > pop_bubble_list;
+	UserUIState& ui_state_ref = g1.GetUIStateRef();
+	const int board_len = ui_state_ref.board_len;
 
-	pop_bubble_list = BoardBFS(*g1, y, x);
+	pop_bubble_list = BoardBFS(g1, y, x);
 
 	if (!pop_bubble_list.size()) return 0;
 	
 	for (auto& pos : pop_bubble_list)
-		g1->ui_val.board[pos.first][pos.second] = 0;
+		ui_state_ref.board[pos.first][pos.second] = 0;
 	
-	for (int i = 0; i < g1->ui_val.board_len; i++)
+	for (int i = 0; i < board_len; i++)
 	{
 		std::queue<int> q;
-		for (int j = g1->ui_val.board_len-1; j >= 0; j--)
+		for (int j = ui_state_ref.board_len-1; j >= 0; j--)
 		{
-			if(g1->ui_val.board[j][i])
-				q.push(g1->ui_val.board[j][i]);
-			g1->ui_val.board[j][i] = 0;
+			if(ui_state_ref.board[j][i])
+				q.push(ui_state_ref.board[j][i]);
+			ui_state_ref.board[j][i] = 0;
 		}
 
-		for (int j = g1->ui_val.board_len - 1; j >= 0; j--)
+		for (int j = board_len - 1; j >= 0; j--)
 		{
 			if (q.empty()) break;
 
-			g1->ui_val.board[j][i] = q.front();
+			ui_state_ref.board[j][i] = q.front();
 			q.pop();
 		}
 	}
-	for (int i = 0; i < g1->ui_val.board_len; i++)
-		for (int j = 0; j < g1->ui_val.board_len; j++)
-			if(g1->ui_val.board[i][j]==0)
-				g1->ui_val.board[i][j] = rand() % 5 + 1;
+	for (int i = 0; i < board_len; i++)
+		for (int j = 0; j < board_len; j++)
+			if(ui_state_ref.board[i][j]==0)
+				ui_state_ref.board[i][j] = rand() % 5 + 1;
 
 	return (int)pop_bubble_list.size();
 }
