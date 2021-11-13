@@ -42,22 +42,22 @@ bool SendData(SOCKET_COMPONENT& sc, GameState &user)
 /// 
 bool RecvData(SOCKET_COMPONENT& sc, GameState &user)
 {
-	const UserUIState& ui_state_ref = user.GetUIStateRef();
+	UserUIState& ui_state_ref = user.GetUIStateRef();
 
 	while (user.IsPlaying())
 	{
 		char str[128] = "";
 
-		for (int i = 0; i < user->ui_val.board_len; i++)
+		for (int i = 0; i < ui_state_ref.board_len; i++)
 		{
 			int len = recv(sc.client_socket, str, sizeof(str), 0);
-			if (len <= user->ui_val.board_len || str[0]-'0'==-48)
+			if (len <= ui_state_ref.board_len || str[0]-'0'==-48)
 			{
 				i--;
 				continue;
 			}
-			for (int j = 0; j < user->ui_val.board_len; j++)
-				user->ui_val.board[str[user->ui_val.board_len]-'0'][j] = str[j]-'0';
+			for (int j = 0; j < ui_state_ref.board_len; j++)
+				ui_state_ref.board[str[ui_state_ref.board_len]-'0'][j] = str[j]-'0';
 		}
 	}
 	return true;
