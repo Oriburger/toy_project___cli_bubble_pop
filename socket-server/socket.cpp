@@ -17,7 +17,7 @@ char board[2][board_len][board_len]; ///< 양쪽 클라이언트로부터 수신받을 정보를 
 ///	@brief	listen 상태에 있는 클라이언트와 연결한다.
 ///	@return	클라이언트와 연결에 성공할 경우 true, 그렇지 않다면 false를 반환.
 ///	
-bool ConnectClient(SOCKET_COMPONENT& sc, int id)
+bool ConnectClient(SOCKET_COMPONENT& sc, const int id)
 {
 	std::cout << "Connect to client #" << id << "...\n";
 
@@ -36,7 +36,7 @@ bool ConnectClient(SOCKET_COMPONENT& sc, int id)
 ///	@brief	식별자가 id인 클라이언트로 상대방의 게임 정보를 송신
 ///	@return	true
 ///	
-bool SendData(SOCKET_COMPONENT& sc, int id)
+bool SendData(SOCKET_COMPONENT& sc, const int id)
 {
 	while (1)
 	{
@@ -59,7 +59,7 @@ bool SendData(SOCKET_COMPONENT& sc, int id)
 ///	@brief	식별자가 id인 클라이언트로의 게임 정보를 수신
 ///	@return	true
 ///	
-bool RecvData(SOCKET_COMPONENT& sc, int id)
+bool RecvData(SOCKET_COMPONENT& sc, const int id)
 {
 	while (1)
 	{
@@ -88,7 +88,7 @@ bool RecvData(SOCKET_COMPONENT& sc, int id)
 ///	@see	RecvData();
 ///	@return	void
 ///	
-void ExchangeData(SOCKET_COMPONENT& sc, int id)
+void ExchangeData(SOCKET_COMPONENT& sc, const int id)
 {
 	std::thread t_send(SendData, std::ref(sc), id);
 	std::thread t_recv(RecvData, std::ref(sc), id);

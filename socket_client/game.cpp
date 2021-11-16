@@ -107,8 +107,8 @@ void InGame(GameState user[2])
 			int y = cmd[0] - '0' - 1;
 			int x = cmd[1] - '0' - 1;
 
-			if (y < 0 || y >= user[0].GetUIStateRef().board_len
-				|| x < 0 || x >= user[0].GetUIStateRef().board_len) continue;
+			if (y < 0 || y >= user[0].GetUIState().board_len
+				|| x < 0 || x >= user[0].GetUIState().board_len) continue;
 			else
 			{
 				int pop_count = PopBoard(user[0], y, x); 
@@ -123,12 +123,12 @@ void InGame(GameState user[2])
 ///	@brief	Breath-First-Search 알고리즘 기반으로 보드를 탐색.
 ///	@return	(y, x)에서 pop이 가능하다면, pop되는 bubble들의 좌표 배열을 반환.
 ///
-std::vector<std::pair<int, int> > BoardBFS(GameState& g1, const int y, const int x)
+std::vector<std::pair<int, int> > BoardBFS(const GameState& g1, const int y, const int x)
 {
 	const int dy[4] = { 1, -1, 0, 0 };
 	const int dx[4] = { 0, 0, 1, -1 };
 
-	const UserUIState& ui_state_ref = g1.GetUIStateRef();
+	const UserUIState& ui_state_ref = g1.GetUIState();
 	const int board_len = ui_state_ref.board_len;
 
 	int count = 1;
@@ -188,7 +188,7 @@ std::vector<std::pair<int, int> > BoardBFS(GameState& g1, const int y, const int
 int PopBoard(GameState &g1, const int y, const int x)
 {
 	std::vector<std::pair<int, int> > pop_bubble_list;
-	UserUIState& ui_state_ref = g1.GetUIStateRef();
+	UserUIState& ui_state_ref = g1.GetUIState();
 	const int board_len = ui_state_ref.board_len;
 
 	pop_bubble_list = BoardBFS(g1, y, x);

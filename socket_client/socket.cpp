@@ -15,9 +15,9 @@
 /// @brief	소켓을 통해 서버로 현재 플레이어의 board 정보를 전송한다.
 /// @return	true를 반환
 /// 
-bool SendData(SOCKET_COMPONENT& sc, GameState &user)
+bool SendData(SOCKET_COMPONENT& sc, const GameState &user)
 {
-	const UserUIState& ui_state_ref = user.GetUIStateRef();
+	const UserUIState& ui_state_ref = user.GetUIState();
 
 	while (user.IsPlaying())
 	{
@@ -42,7 +42,7 @@ bool SendData(SOCKET_COMPONENT& sc, GameState &user)
 /// 
 bool RecvData(SOCKET_COMPONENT& sc, GameState &user)
 {
-	UserUIState& ui_state_ref = user.GetUIStateRef();
+	UserUIState& ui_state_ref = user.GetUIState();
 
 	while (user.IsPlaying())
 	{

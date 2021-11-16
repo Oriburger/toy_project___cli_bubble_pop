@@ -60,7 +60,7 @@ struct SOCKET_COMPONENT
 };
 
 /// 소켓을 통해 서버로 현재 플레이어의 board 정보를 전송한다.
-bool SendData(SOCKET_COMPONENT& sc, GameState &user);
+bool SendData(SOCKET_COMPONENT& sc, const GameState &user);
 
 /// 소켓을 통해 서버로 상태 플레이어의 board 정보를 수신한다.
 bool RecvData(SOCKET_COMPONENT& sc, GameState &user);
